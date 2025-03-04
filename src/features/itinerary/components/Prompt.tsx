@@ -13,40 +13,40 @@ const testData = [
     {
         "day": 1,
         "activities": [
-            { "name": "Luxembourg Gardens", "location": "Luxembourg Gardens, Paris, France", "transport_to_next": "Walking" },
-            { "name": "Sainte-Chapelle", "location": "Sainte-Chapelle, Paris, France", "transport_to_next": "Metro" },
-            { "name": "Place Dauphine", "location": "Place Dauphine, Paris, France", "transport_to_next": "Walking" }
+            { "name": "Luxembourg Gardens", "duration": "2 hours", "location": "Luxembourg Gardens, Paris, France", "transport_to_next": "Walking" },
+            { "name": "Sainte-Chapelle", "duration": "1 hour", "location": "Sainte-Chapelle, Paris, France", "transport_to_next": "Metro" },
+            { "name": "Place Dauphine", "duration": "1 hour", "location": "Place Dauphine, Paris, France", "transport_to_next": "Walking" }
         ]
     },
     {
         "day": 2,
         "activities": [
-            { "name": "Montmartre", "location": "Montmartre, Paris, France", "transport_to_next": "Metro" },
-            { "name": "Basilica of the Sacré-Cœur", "location": "Basilica of the Sacré-Cœur, Paris, France", "transport_to_next": "Walking" },
-            { "name": "Place du Tertre", "location": "Place du Tertre, Paris, France", "transport_to_next": "Walking" }
+            { "name": "Montmartre", "duration": "1 hour", "location": "Montmartre, Paris, France", "transport_to_next": "Metro" },
+            { "name": "Basilica of the Sacré-Cœur", "duration": "1 hour", "location": "Basilica of the Sacré-Cœur, Paris, France", "transport_to_next": "Walking" },
+            { "name": "Place du Tertre", "duration": "1 hour", "location": "Place du Tertre, Paris, France", "transport_to_next": "Walking" }
         ]
     },
     {
         "day": 3,
         "activities": [
-            { "name": "Rodin Museum", "location": "Rodin Museum, Paris, France", "transport_to_next": "Metro" },
-            { "name": "Les Invalides", "location": "Les Invalides, Paris, France", "transport_to_next": "Walking" },
-            { "name": "Musée d'Orsay", "location": "Musée d'Orsay, Paris, France", "transport_to_next": "Walking" }
+            { "name": "Rodin Museum", "duration": "1 hour", "location": "Rodin Museum, Paris, France", "transport_to_next": "Metro" },
+            { "name": "Les Invalides", "duration": "1 hour", "location": "Les Invalides, Paris, France", "transport_to_next": "Walking" },
+            { "name": "Musée d'Orsay", "duration": "1 hour", "location": "Musée d'Orsay, Paris, France", "transport_to_next": "Walking" }
         ]
     },
     {
         "day": 4,
         "activities": [
-            { "name": "Seine River Cruise", "location": "Seine River, Paris, France", "transport_to_next": "Walking" },
-            { "name": "Ile de la Cité", "location": "Ile de la Cité, Paris, France", "transport_to_next": "Walking" },
-            { "name": "Latin Quarter", "location": "Latin Quarter, Paris, France", "transport_to_next": "Walking" }
+            { "name": "Seine River Cruise", "duration": "1 hour", "location": "Seine River, Paris, France", "transport_to_next": "Walking" },
+            { "name": "Ile de la Cité", "duration": "1 hour", "location": "Ile de la Cité, Paris, France", "transport_to_next": "Walking" },
+            { "name": "Latin Quarter", "duration": "1 hour", "location": "Latin Quarter, Paris, France", "transport_to_next": "Walking" }
         ]
     },
     {
         "day": 5,
         "activities": [
-            { "name": "Parc des Buttes-Chaumont", "location": "Parc des Buttes-Chaumont, Paris, France", "transport_to_next": "Metro" },
-            { "name": "Canal Saint-Martin", "location": "Canal Saint-Martin, Paris, France", "transport_to_next": "Walking" }
+            { "name": "Parc des Buttes-Chaumont", "duration": "30 minutes", "location": "Parc des Buttes-Chaumont, Paris, France", "transport_to_next": "Metro" },
+            { "name": "Canal Saint-Martin", "duration": "1 hour", "location": "Canal Saint-Martin, Paris, France", "transport_to_next": "Walking" }
         ]
     }
 ]

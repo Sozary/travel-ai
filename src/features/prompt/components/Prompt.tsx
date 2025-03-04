@@ -7,25 +7,25 @@ const testData = {
         {
             "day": 1,
             "activities": [
-                { "name": "Luxembourg Gardens", "location": "Luxembourg Gardens, Paris, France", "transport_to_next": "Walking" },
-                { "name": "Sainte-Chapelle", "location": "Sainte-Chapelle, Paris, France", "transport_to_next": "Metro" },
-                { "name": "Place Dauphine", "location": "Place Dauphine, Paris, France", "transport_to_next": "Walking" }
+                { "name": "Luxembourg Gardens", "location": "Luxembourg Gardens, Paris, France", "duration": "30 minutes", "transport_to_next": "Walking" },
+                { "name": "Sainte-Chapelle", "location": "Sainte-Chapelle, Paris, France", "duration": "45 minutes", "transport_to_next": "Metro" },
+                { "name": "Place Dauphine", "location": "Place Dauphine, Paris, France", "duration": "2 hours", "transport_to_next": "Walking" }
             ]
         },
         {
             "day": 2,
             "activities": [
-                { "name": "Montmartre", "location": "Montmartre, Paris, France", "transport_to_next": "Metro" },
-                { "name": "Basilica of the Sacré-Cœur", "location": "Basilica of the Sacré-Cœur, Paris, France", "transport_to_next": "Walking" },
-                { "name": "Place du Tertre", "location": "Place du Tertre, Paris, France", "transport_to_next": "Walking" }
+                { "name": "Montmartre", "location": "Montmartre, Paris, France", "duration": "45 minutes", "transport_to_next": "Metro" },
+                { "name": "Basilica of the Sacré-Cœur", "location": "Basilica of the Sacré-Cœur, Paris, France", "duration": "30 minutes", "transport_to_next": "Walking" },
+                { "name": "Place du Tertre", "location": "Place du Tertre, Paris, France", "duration": "2 hours", "transport_to_next": "Walking" }
             ]
         },
         {
             "day": 3,
             "activities": [
-                { "name": "Rodin Museum", "location": "Rodin Museum, Paris, France", "transport_to_next": "Metro" },
-                { "name": "Les Invalides", "location": "Les Invalides, Paris, France", "transport_to_next": "Walking" },
-                { "name": "Musée d'Orsay", "location": "Musée d'Orsay, Paris, France", "transport_to_next": "Walking" }
+                { "name": "Rodin Museum", "location": "Rodin Museum, Paris, France", "duration": "1 hour", "transport_to_next": "Metro" },
+                { "name": "Les Invalides", "location": "Les Invalides, Paris, France", "duration": "30 minutes", "transport_to_next": "Walking" },
+                { "name": "Musée d'Orsay", "location": "Musée d'Orsay, Paris, France", "duration": "30 minutes", "transport_to_next": "Walking" }
             ]
         },
         {
