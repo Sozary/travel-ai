@@ -140,9 +140,8 @@ const Prompt = () => {
                             "bg-white": selectedTripKind !== item.value
                         })}
                         onClick={() => {
-                            setSelectedTripKind(item.value);
                             if (prompt) {
-                                fetchItinerary();
+                                setSelectedTripKind(item.value);
                             }
                         }}
                     >
