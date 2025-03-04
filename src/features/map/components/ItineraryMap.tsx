@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { LatLngTuple, Icon } from 'leaflet';
 import { DayItinerary, ActivityCoordinates } from '../types';
-import { geocodingService } from '../services/geocodingService';
+import { geocodingService } from '../services';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
