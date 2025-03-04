@@ -13,6 +13,7 @@ import { ItineraryMap } from "../../map/components/ItineraryMap";
 const Prompt = () => {
     const [selectedTripKind, setSelectedTripKind] = useState<string | null>(null);
     const [prompt, setPrompt] = useState("");
+    const [fetchingMoreDays, setFetchingMoreDays] = useState(false);
     const [loading, setLoading] = useState(false);
     const [days, setDays] = useState<Day[]>([]);
     const isMounted = useRef(true);
@@ -46,6 +47,7 @@ const Prompt = () => {
         }
 
         setLoading(true);
+        setFetchingMoreDays(true);
         setDays([]);
 
         try {
@@ -54,7 +56,10 @@ const Prompt = () => {
             console.error("Error fetching itinerary:", error);
             toast.error("Failed to generate itinerary");
         } finally {
-            if (isMounted.current) setLoading(false);
+            if (isMounted.current) {
+                setLoading(false);
+                setFetchingMoreDays(false);
+            }
         }
     };
 
@@ -102,7 +107,7 @@ const Prompt = () => {
             )}
             {/* Content with padding */}
             {/* Always show the timeline */}
-            <ItineraryTimeline days={days} onActivityChange={setSelectedLocation} />
+            <ItineraryTimeline days={days} onActivityChange={setSelectedLocation} fetchingMoreDays={fetchingMoreDays} />
         </div>
     );
 };

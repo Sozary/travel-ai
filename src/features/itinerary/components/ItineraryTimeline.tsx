@@ -6,9 +6,11 @@ import ActivityCard from "./ActivityCard";
 interface ItineraryTimelineProps {
     days: Day[];
     onActivityChange: (location: string) => void;
+    fetchingMoreDays: boolean;
+
 }
 
-export const ItineraryTimeline = ({ days, onActivityChange }: ItineraryTimelineProps) => {
+export const ItineraryTimeline = ({ days, onActivityChange, fetchingMoreDays }: ItineraryTimelineProps) => {
     const [selectedDay, setSelectedDay] = useState<number>(1);
     const [visibleActivity, setVisibleActivity] = useState<string | null>(null);
     const activityRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -53,7 +55,7 @@ export const ItineraryTimeline = ({ days, onActivityChange }: ItineraryTimelineP
         <div className="bg-white rounded-2xl py-[15px]">
             {/* Day Selector with shadow */}
             <div className="shadow-md">
-                <DaySelector days={days} selectedDay={selectedDay} onDaySelect={setSelectedDay} />
+                <DaySelector days={days} selectedDay={selectedDay} onDaySelect={setSelectedDay} fetchingMoreDays={fetchingMoreDays} />
             </div>
 
             {/* Activities */}

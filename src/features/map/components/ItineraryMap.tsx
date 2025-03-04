@@ -35,8 +35,6 @@ const MapController = ({ selectedLocation, activityCoordinates, days }: { select
 
     // Zoom to selected location
     useEffect(() => {
-        console.log("voyage a", selectedLocation);
-
         if (selectedLocation && activityCoordinates[selectedLocation]) {
             const position = activityCoordinates[selectedLocation];
             map.flyTo(position, 16, { duration: .5 }); // Smooth zoom effect
