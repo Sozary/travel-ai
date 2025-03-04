@@ -1,26 +1,52 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
-import { LatLngTuple, Icon } from 'leaflet';
-import { DayItinerary, ActivityCoordinates } from '../types';
-import { geocodingService } from '../services';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import { useEffect, useState, useCallback, useRef } from "react";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { LatLngTuple, Icon, LatLngBounds } from "leaflet";
+import { DayItinerary, ActivityCoordinates } from "../types";
+import { geocodingService } from "../services";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 
 // Fix for default marker icons in react-leaflet
 delete (Icon.Default.prototype as { _getIconUrl?: string })._getIconUrl;
 L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+    iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
 interface ItineraryMapProps {
     days: DayItinerary[];
+    selectedLocation: string | null;
 }
 
-export const ItineraryMap = ({ days }: ItineraryMapProps) => {
+const MapController = ({ selectedLocation, activityCoordinates, days }: { selectedLocation: string | null; activityCoordinates: ActivityCoordinates; days: DayItinerary[] }) => {
+    const map = useMap();
+
+    // Fit map to all locations initially
+    useEffect(() => {
+        const allPositions = days
+            .flatMap(day => day.activities.map(activity => activityCoordinates[activity.location]))
+            .filter(coord => coord !== undefined) as LatLngTuple[];
+
+        if (allPositions.length > 0) {
+            const bounds = new LatLngBounds(allPositions);
+            map.fitBounds(bounds, { padding: [50, 50] }); // Ensure some padding around
+        }
+    }, [activityCoordinates, days, map]);
+
+    // Zoom to selected location
+    useEffect(() => {
+        if (selectedLocation && activityCoordinates[selectedLocation]) {
+            const position = activityCoordinates[selectedLocation];
+            map.flyTo(position, 14, { duration: 1.5 }); // Smooth zoom effect
+        }
+    }, [selectedLocation, activityCoordinates, map]);
+
+    return null;
+};
+
+export const ItineraryMap = ({ days, selectedLocation }: ItineraryMapProps) => {
     const [activityCoordinates, setActivityCoordinates] = useState<ActivityCoordinates>({});
-    const [isLoading, setIsLoading] = useState(true);
     const isMountedRef = useRef(true);
 
     useEffect(() => {
@@ -38,10 +64,7 @@ export const ItineraryMap = ({ days }: ItineraryMapProps) => {
         let hasNewCoordinates = false;
 
         for (const location of uniqueLocations) {
-            // Skip if we already have coordinates
-            if (activityCoordinates[location]) {
-                continue;
-            }
+            if (activityCoordinates[location]) continue;
 
             console.log(`Fetching coordinates for: ${location}`);
             const coords = await geocodingService.fetchCoordinates(location);
@@ -53,50 +76,32 @@ export const ItineraryMap = ({ days }: ItineraryMapProps) => {
         }
 
         if (hasNewCoordinates && isMountedRef.current) {
-            setActivityCoordinates(prev => ({ ...prev, ...newCoordinates }));
+            setActivityCoordinates((prev) => ({ ...prev, ...newCoordinates }));
         }
     }, [activityCoordinates]);
 
     useEffect(() => {
-        const locations = days.flatMap(day =>
-            day.activities.map(activity => activity.location)
-        );
-
-        // Debounce the coordinate fetching
+        const locations = days.flatMap(day => day.activities.map(activity => activity.location));
         const timeoutId = setTimeout(() => {
             if (isMountedRef.current) {
                 fetchCoordinatesForLocations(locations);
-                setIsLoading(false);
             }
         }, 500);
 
         return () => clearTimeout(timeoutId);
     }, [days, fetchCoordinatesForLocations]);
 
-    // Extract coordinates in sequence for Polyline
     const route: LatLngTuple[] = days
-        .flatMap((day) =>
-            day.activities
-            .map((activity) => activityCoordinates[activity.location])
-                .filter((coord) => coord !== undefined)
-        ) as LatLngTuple[];
-
-    // if (isLoading || days.length === 0) {
-    if (isLoading) {
-        return <div className="h-[400px] w-full bg-gray-100 flex items-center justify-center">
-            <p className="text-gray-500">Loading map...</p>
-        </div>;
-    }
+        .flatMap((day) => day.activities.map((activity) => activityCoordinates[activity.location]))
+        .filter((coord) => coord !== undefined) as LatLngTuple[];
 
     return (
         <div className="w-full h-[400px]">
-            <MapContainer
-                center={[48.8566, 2.3522]}
-                zoom={12}
-                style={{ height: "100%", width: "100%" }}
-                className="w-full"
-            >
+            <MapContainer center={[48.8566, 2.3522]} zoom={12} style={{ height: "100%", width: "100%" }}>
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
+                {/* Handles zooming & fitting to all activities */}
+                <MapController selectedLocation={selectedLocation} activityCoordinates={activityCoordinates} days={days} />
 
                 {days.map((day) =>
                     day.activities.map((activity, idx) => {
@@ -119,9 +124,8 @@ export const ItineraryMap = ({ days }: ItineraryMapProps) => {
                     })
                 )}
 
-                {/* Draw route with a polyline */}
                 {route.length > 1 && <Polyline positions={route} color="blue" />}
             </MapContainer>
         </div>
     );
-}; 
+};

@@ -1,5 +1,6 @@
 export interface Activity {
 	name: string;
+	duration: string;
 	location: string;
 	transport_to_next: string;
 }
