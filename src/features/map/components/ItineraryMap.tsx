@@ -90,9 +90,6 @@ export const ItineraryMap = ({ days, selectedLocation }: ItineraryMapProps) => {
         return () => clearTimeout(timeoutId);
     }, [days, fetchCoordinatesForLocations]);
 
-    const route: LatLngTuple[] = days
-        .flatMap((day) => day.activities.map((activity) => activityCoordinates[activity.location]))
-        .filter((coord) => coord !== undefined) as LatLngTuple[];
 
     return (
         <div className="w-full h-[400px]">
@@ -122,8 +119,24 @@ export const ItineraryMap = ({ days, selectedLocation }: ItineraryMapProps) => {
                         );
                     })
                 )}
+                {days.map((day) => {
+                    const dayRoute: LatLngTuple[] = day.activities
+                        .map((activity) => activityCoordinates[activity.location])
+                        .filter((coord) => coord !== undefined) as LatLngTuple[];
 
-                {route.length > 1 && <Polyline positions={route} color="blue" />}
+                    return (
+                        dayRoute.length > 1 && (
+                            <Polyline
+                                key={`route-${day.day}`}
+                                positions={dayRoute}
+                                color="blue"
+                                weight={4}
+                                opacity={0.7}
+                            />
+                        )
+                    );
+                })}
+
             </MapContainer>
         </div>
     );
