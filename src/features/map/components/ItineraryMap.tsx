@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { LatLngTuple, Icon } from 'leaflet';
 import { DayItinerary, ActivityCoordinates } from '../types';
+import { geocodingService } from '../services/geocodingService';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -13,26 +14,6 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Function to fetch coordinates from OpenStreetMap (Nominatim API)
-const fetchCoordinates = async (location: string): Promise<LatLngTuple | null> => {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (data.length > 0) {
-            return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-        } else {
-            console.warn(`No coordinates found for ${location}`);
-            return null;
-        }
-    } catch (error) {
-        console.error(`Error fetching coordinates for ${location}:`, error);
-        return null;
-    }
-};
-
 interface ItineraryMapProps {
     days: DayItinerary[];
 }
@@ -40,36 +21,38 @@ interface ItineraryMapProps {
 export const ItineraryMap = ({ days }: ItineraryMapProps) => {
     const [activityCoordinates, setActivityCoordinates] = useState<ActivityCoordinates>({});
     const [isLoading, setIsLoading] = useState(true);
-    const pendingLocationsRef = useRef<Set<string>>(new Set());
-    const processedLocationsRef = useRef<Set<string>>(new Set());
+    const isMountedRef = useRef(true);
+
+    useEffect(() => {
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
 
     const fetchCoordinatesForLocations = useCallback(async (locations: string[]) => {
+        if (!isMountedRef.current) return;
+
         const uniqueLocations = [...new Set(locations)];
         const newCoordinates: ActivityCoordinates = {};
         let hasNewCoordinates = false;
 
         for (const location of uniqueLocations) {
-            // Skip if we already have coordinates or if it's being processed
-            if (activityCoordinates[location] ||
-                pendingLocationsRef.current.has(location) ||
-                processedLocationsRef.current.has(location)) {
+            // Skip if we already have coordinates
+            if (activityCoordinates[location]) {
                 continue;
             }
 
             console.log(`Fetching coordinates for: ${location}`);
-            pendingLocationsRef.current.add(location);
+            const coords = await geocodingService.fetchCoordinates(location);
 
-            const coords = await fetchCoordinates(location);
-            if (coords) {
+            if (coords && isMountedRef.current) {
                 newCoordinates[location] = coords;
                 hasNewCoordinates = true;
             }
-
-            pendingLocationsRef.current.delete(location);
-            processedLocationsRef.current.add(location);
         }
 
-        if (hasNewCoordinates) {
+        if (hasNewCoordinates && isMountedRef.current) {
             setActivityCoordinates(prev => ({ ...prev, ...newCoordinates }));
         }
     }, [activityCoordinates]);
@@ -79,13 +62,12 @@ export const ItineraryMap = ({ days }: ItineraryMapProps) => {
             day.activities.map(activity => activity.location)
         );
 
-        // Reset processed locations when days change
-        processedLocationsRef.current.clear();
-
         // Debounce the coordinate fetching
         const timeoutId = setTimeout(() => {
-            fetchCoordinatesForLocations(locations);
-            setIsLoading(false);
+            if (isMountedRef.current) {
+                fetchCoordinatesForLocations(locations);
+                setIsLoading(false);
+            }
         }, 500);
 
         return () => clearTimeout(timeoutId);
