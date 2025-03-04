@@ -1,5 +1,5 @@
-const Search = ({ color = '#000', size = 48, className }: { color?: string; size?: number; className?: string }) => (
-  <svg className={className} width={`${size}px`} height={`${size}px`} viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+const Search = ({ color = '#000', size = 48, className, onClick }: { color?: string; size?: number; className?: string; onClick?: () => void }) => (
+  <svg className={className} width={`${size}px`} height={`${size}px`} viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" onClick={onClick}>
     <g>
       <path fill={color} d="M172.625,102.4c-42.674,0-77.392,34.739-77.392,77.438c0,5.932,4.806,10.74,10.733,10.74
 		c5.928,0,10.733-4.808,10.733-10.74c0-30.856,25.088-55.959,55.926-55.959c5.928,0,10.733-4.808,10.733-10.74

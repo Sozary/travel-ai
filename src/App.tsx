@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import Navbar from "./Navbar";
 import Content from "./content/Content";
 function App() {
@@ -5,6 +6,7 @@ function App() {
     <div>
       <Navbar />
       <Content />
+      <Toaster position="top-center" />
     </div>
   );
 }
