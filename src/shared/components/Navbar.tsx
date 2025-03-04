@@ -1,6 +1,6 @@
-import Earth from "./assets/Earth";
-import Save from "./assets/Save";
-import userImage from "./assets/user.jpg";
+import Earth from "../assets/icons/Earth";
+import Save from "../assets/icons/Save";
+import userImage from "../assets/images/user.jpg";
 
 const Navbar = () => {
     return (

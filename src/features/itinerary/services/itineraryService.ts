@@ -1,4 +1,4 @@
-import { API_URL } from "../constants/api";
+import { API_URL } from "../../../shared/constants/api";
 import { Day } from "../types/itinerary";
 
 export const fetchItinerary = async (

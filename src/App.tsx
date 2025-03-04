@@ -1,13 +1,13 @@
-import { Toaster } from "react-hot-toast";
-import Navbar from "./Navbar";
-import Content from "./content/Content";
+import { MainLayout } from "./layouts/MainLayout";
+import { HomePage } from "./pages/HomePage";
+import { Toaster } from 'react-hot-toast';
+
 function App() {
   return (
-    <div>
-      <Navbar />
-      <Content />
+    <MainLayout>
+      <HomePage />
       <Toaster position="top-center" />
-    </div>
+    </MainLayout>
   );
 }
 

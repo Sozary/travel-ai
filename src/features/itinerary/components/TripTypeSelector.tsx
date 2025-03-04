@@ -1,9 +1,9 @@
 import clsx from "clsx";
-import Mountain from "../assets/trip-categories/Mountain";
-import Relaxation from "../assets/trip-categories/Relaxation";
-import Backpack from "../assets/trip-categories/Backpack";
-import Family from "../assets/trip-categories/Family";
-import Romantic from "../assets/trip-categories/Romantic";
+import Mountain from "../icons/Mountain";
+import Relaxation from "../icons/Relaxation";
+import Backpack from "../icons/Backpack";
+import Family from "../icons/Family";
+import Romantic from "../icons/Romantic";
 import { TripType } from "../types/itinerary";
 
 interface TripTypeSelectorProps {

@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import clsx from "clsx";
-import Search from "../assets/Search";
+import Search from "../../../shared/assets/icons/Search";
 import { Day } from "../types/itinerary";
 import { fetchItinerary } from "../services/itineraryService";
-import { TripTypeSelector } from "../components/TripTypeSelector";
-import { ItineraryDisplay } from "../components/ItineraryDisplay";
+import { TripTypeSelector } from "./TripTypeSelector";
+import { ItineraryDisplay } from "./ItineraryDisplay";
 import toast from "react-hot-toast";
 
 const Prompt = () => {
