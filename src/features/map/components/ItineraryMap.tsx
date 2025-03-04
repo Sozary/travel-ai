@@ -77,23 +77,24 @@ export const ItineraryMap = ({ days }: ItineraryMapProps) => {
     const route: LatLngTuple[] = days
         .flatMap((day) =>
             day.activities
-                .map((activity) => activityCoordinates[activity.location])
+            .map((activity) => activityCoordinates[activity.location])
                 .filter((coord) => coord !== undefined)
         ) as LatLngTuple[];
 
-    if (isLoading || days.length === 0) {
-        return <div className="h-[400px] w-full bg-gray-100 flex items-center justify-center rounded-lg">
+    // if (isLoading || days.length === 0) {
+    if (isLoading) {
+        return <div className="h-[400px] w-full bg-gray-100 flex items-center justify-center">
             <p className="text-gray-500">Loading map...</p>
         </div>;
     }
 
     return (
-        <div className="w-full h-[400px] rounded-lg overflow-hidden">
+        <div className="w-full h-[400px]">
             <MapContainer
                 center={[48.8566, 2.3522]}
                 zoom={12}
                 style={{ height: "100%", width: "100%" }}
-                className="rounded-lg"
+                className="w-full"
             >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 

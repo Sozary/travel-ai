@@ -57,48 +57,53 @@ const Prompt = () => {
     };
 
     return (
-        <div className="px-[15px] py-[20px]">
-            <div className="relative">
-                <textarea
-                    name="prompt"
-                    placeholder="Tell me about the best places to visit in Asia..."
-                    className="w-full border border-[#E2E8F0] rounded-[8px] p-[10px] pr-[40px] bg-white resize-none overflow-hidden"
-                    value={prompt}
-                    onChange={(e) => {
-                        e.target.style.height = 'auto';
-                        e.target.style.height = e.target.scrollHeight + 'px';
-                        setPrompt(e.target.value);
-                    }}
-                    rows={2}
+        <div className="flex flex-col">
+            <div className="px-[15px] py-[20px]">
+                <div className="relative">
+                    <textarea
+                        name="prompt"
+                        placeholder="Tell me about the best places to visit in Asia..."
+                        className="w-full border border-[#E2E8F0] rounded-[8px] p-[10px] pr-[40px] bg-white resize-none overflow-hidden"
+                        value={prompt}
+                        onChange={(e) => {
+                            e.target.style.height = 'auto';
+                            e.target.style.height = e.target.scrollHeight + 'px';
+                            setPrompt(e.target.value);
+                        }}
+                        rows={2}
+                    />
+                    <Search
+                        color="#3662e3"
+                        size={24}
+                        className={clsx("absolute right-[15px] top-1/2 -translate-y-1/2 cursor-pointer transition", {
+                            "scale-0": !prompt,
+                            "scale-100": prompt
+                        })}
+                        onClick={handleFetchItinerary}
+                    />
+                </div>
+
+                <TripTypeSelector
+                    selectedTripKind={selectedTripKind}
+                    onTripTypeSelect={setSelectedTripKind}
                 />
-                <Search
-                    color="#3662e3"
-                    size={24}
-                    className={clsx("absolute right-[15px] top-1/2 -translate-y-1/2 cursor-pointer transition", {
-                        "scale-0": !prompt,
-                        "scale-100": prompt
-                    })}
-                    onClick={handleFetchItinerary}
-                />
+
+                {/* Show loading state */}
+                {loading && <p className="mt-4 text-gray-500">Generating itinerary...</p>}
             </div>
 
-            <TripTypeSelector
-                selectedTripKind={selectedTripKind}
-                onTripTypeSelect={setSelectedTripKind}
-            />
-
-            {/* Show loading state */}
-            {loading && <p className="mt-4 text-gray-500">Generating itinerary...</p>}
-
-            {/* Display itinerary */}
+            {/* Map takes full width */}
             {days.length > 0 && (
-                <>
-                    <div className="mt-8">
-                        <ItineraryMap days={days} />
-                    </div>
-                    <ItineraryDisplay days={days} />
-                </>
+                <div className="w-full">
+                    <ItineraryMap days={days} />
+                </div>
             )}
+
+            {/* Content with padding */}
+            <div className="px-[15px] py-[20px]">
+                {/* Display itinerary */}
+                {days.length > 0 && <ItineraryDisplay days={days} />}
+            </div>
         </div>
     );
 };
