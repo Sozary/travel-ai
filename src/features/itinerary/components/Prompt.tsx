@@ -6,9 +6,50 @@ import Search from "../../../shared/assets/icons/Search";
 import { Day } from "../types/itinerary";
 import { fetchItinerary } from "../services/itineraryService";
 import { TripTypeSelector } from "./TripTypeSelector";
-import { ItineraryDisplay } from "./ItineraryDisplay";
+import { ItineraryTimeline } from "./ItineraryTimeline";
 import toast from "react-hot-toast";
 import { ItineraryMap } from "../../map/components/ItineraryMap";
+const testData = [
+    {
+        "day": 1,
+        "activities": [
+            { "name": "Luxembourg Gardens", "location": "Luxembourg Gardens, Paris, France", "transport_to_next": "Walking" },
+            { "name": "Sainte-Chapelle", "location": "Sainte-Chapelle, Paris, France", "transport_to_next": "Metro" },
+            { "name": "Place Dauphine", "location": "Place Dauphine, Paris, France", "transport_to_next": "Walking" }
+        ]
+    },
+    {
+        "day": 2,
+        "activities": [
+            { "name": "Montmartre", "location": "Montmartre, Paris, France", "transport_to_next": "Metro" },
+            { "name": "Basilica of the Sacré-Cœur", "location": "Basilica of the Sacré-Cœur, Paris, France", "transport_to_next": "Walking" },
+            { "name": "Place du Tertre", "location": "Place du Tertre, Paris, France", "transport_to_next": "Walking" }
+        ]
+    },
+    {
+        "day": 3,
+        "activities": [
+            { "name": "Rodin Museum", "location": "Rodin Museum, Paris, France", "transport_to_next": "Metro" },
+            { "name": "Les Invalides", "location": "Les Invalides, Paris, France", "transport_to_next": "Walking" },
+            { "name": "Musée d'Orsay", "location": "Musée d'Orsay, Paris, France", "transport_to_next": "Walking" }
+        ]
+    },
+    {
+        "day": 4,
+        "activities": [
+            { "name": "Seine River Cruise", "location": "Seine River, Paris, France", "transport_to_next": "Walking" },
+            { "name": "Ile de la Cité", "location": "Ile de la Cité, Paris, France", "transport_to_next": "Walking" },
+            { "name": "Latin Quarter", "location": "Latin Quarter, Paris, France", "transport_to_next": "Walking" }
+        ]
+    },
+    {
+        "day": 5,
+        "activities": [
+            { "name": "Parc des Buttes-Chaumont", "location": "Parc des Buttes-Chaumont, Paris, France", "transport_to_next": "Metro" },
+            { "name": "Canal Saint-Martin", "location": "Canal Saint-Martin, Paris, France", "transport_to_next": "Walking" }
+        ]
+    }
+]
 
 const Prompt = () => {
     const [selectedTripKind, setSelectedTripKind] = useState<string | null>(null);
@@ -98,12 +139,9 @@ const Prompt = () => {
                     <ItineraryMap days={days} />
                 </div>
             )}
-
             {/* Content with padding */}
-            <div className="px-[15px] py-[20px]">
-                {/* Display itinerary */}
-                {days.length > 0 && <ItineraryDisplay days={days} />}
-            </div>
+            {/* Always show the timeline */}
+            <ItineraryTimeline days={testData} />
         </div>
     );
 };
