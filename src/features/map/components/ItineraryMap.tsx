@@ -18,7 +18,6 @@ interface ItineraryMapProps {
     days: DayItinerary[];
     selectedLocation: string | null;
 }
-
 const MapController = ({ selectedLocation, activityCoordinates, days }: { selectedLocation: string | null; activityCoordinates: ActivityCoordinates; days: DayItinerary[] }) => {
     const map = useMap();
 
@@ -36,14 +35,17 @@ const MapController = ({ selectedLocation, activityCoordinates, days }: { select
 
     // Zoom to selected location
     useEffect(() => {
+        console.log("voyage a", selectedLocation);
+
         if (selectedLocation && activityCoordinates[selectedLocation]) {
             const position = activityCoordinates[selectedLocation];
-            map.flyTo(position, 14, { duration: 1.5 }); // Smooth zoom effect
+            map.flyTo(position, 16, { duration: .5 }); // Smooth zoom effect
         }
     }, [selectedLocation, activityCoordinates, map]);
 
     return null;
 };
+
 
 export const ItineraryMap = ({ days, selectedLocation }: ItineraryMapProps) => {
     const [activityCoordinates, setActivityCoordinates] = useState<ActivityCoordinates>({});
@@ -66,7 +68,6 @@ export const ItineraryMap = ({ days, selectedLocation }: ItineraryMapProps) => {
         for (const location of uniqueLocations) {
             if (activityCoordinates[location]) continue;
 
-            console.log(`Fetching coordinates for: ${location}`);
             const coords = await geocodingService.fetchCoordinates(location);
 
             if (coords && isMountedRef.current) {

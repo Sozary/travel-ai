@@ -102,7 +102,7 @@ const Prompt = () => {
             )}
             {/* Content with padding */}
             {/* Always show the timeline */}
-            <ItineraryTimeline days={days} onActivitySelect={setSelectedLocation} />
+            <ItineraryTimeline days={days} onActivityChange={setSelectedLocation} />
         </div>
     );
 };

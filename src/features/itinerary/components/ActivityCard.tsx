@@ -5,11 +5,12 @@ import Arrow from "../icons/Arrow";
 interface ActivityCardProps {
     activity: Activity;
     isLast: boolean;
+    selected: boolean;
 }
 
-const ActivityCard = ({ activity, isLast }: ActivityCardProps) => {
+const ActivityCard = ({ activity, isLast, selected }: ActivityCardProps) => {
     return (
-        <div className="bg-white rounded-xl p-4 border border-gray-100 h-[150px] flex flex-col">
+        <div className={`rounded-xl p-4 border border-gray-100 h-[150px] flex flex-col ${selected ? "bg-blue-100" : "bg-white "}`}>
             <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-1">
                     <Location color="#3662e3" size={15} />
