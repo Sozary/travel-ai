@@ -14,7 +14,7 @@ export const DaySelector = ({ days, selectedDay, onDaySelect }: DaySelectorProps
                     <button
                         key={day.day}
                         onClick={() => onDaySelect(day.day)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors
+                        className={`px-4 py-2 cursor-pointer rounded-full text-sm font-medium whitespace-nowrap transition-all 
                             ${selectedDay === day.day
                                 ? 'bg-[#3662e3] text-white'
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

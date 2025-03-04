@@ -20,7 +20,7 @@ const ActivityCard = ({ activity, isLast }: ActivityCardProps) => {
                         Visit duration: 2 hours
                     </div>
                     <div>
-                        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location)}`} target="_blank">Address details here</a>
+                        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location)}`} className="transition-colors hover:text-[#3662e3]" target="_blank">Address details here</a>
                     </div>
                 </div>
             </div>
@@ -28,7 +28,7 @@ const ActivityCard = ({ activity, isLast }: ActivityCardProps) => {
             {!isLast && activity.transport_to_next && (
                 <div className="mt-auto pt-3 border-t border-gray-100">
                     <div className="text-sm text-gray-500 flex items-center gap-1 font-medium">
-                        <Arrow className="rotate-180" color="#6a7282" size={15} /> Next: {activity.transport_to_next} to the next activity
+                        <Arrow className="rotate-180" color="#6a7282" size={15} /> Next: {activity.transport_to_next}
                     </div>
                 </div>
             )}
