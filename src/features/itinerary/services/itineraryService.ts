@@ -6,43 +6,55 @@ export const fetchItinerary = async (
 	tripType: string,
 	onDayReceived: (day: Day) => void
 ): Promise<void> => {
-	const response = await fetch(
-		`${API_URL}?destination=${encodeURIComponent(
-			prompt
-		)}&trip_type=${tripType}`,
-		{ method: "GET", headers: { Accept: "text/event-stream" } }
-	);
+	try {
+		const response = await fetch(
+			`${API_URL}?destination=${encodeURIComponent(
+				prompt
+			)}&trip_type=${tripType}`,
+			{ method: "GET", headers: { Accept: "text/event-stream" } }
+		);
 
-	if (!response.body) throw new Error("No response body");
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
 
-	const reader = response.body.getReader();
-	const decoder = new TextDecoder();
-	let buffer = "";
+		if (!response.body) {
+			throw new Error("No response body");
+		}
 
-	while (true) {
-		const { value, done } = await reader.read();
-		if (done) break;
-
-		buffer += decoder.decode(value, { stream: true });
+		const reader = response.body.getReader();
+		const decoder = new TextDecoder();
+		let buffer = "";
 
 		try {
-			// Try to find complete day objects in the buffer
-			const dayMatches = buffer.match(
-				/\{\s*"day":\s*\d+,\s*"city":\s*"[^"]+",\s*"activities":\s*\[[^\]]+\],\s*"transport":\s*"[^"]+"\s*\}/g
-			);
+			while (true) {
+				const { value, done } = await reader.read();
+				if (done) break;
 
-			if (dayMatches) {
-				for (const match of dayMatches) {
-					const day = JSON.parse(match);
-					console.log("New day received:", day);
-					onDayReceived(day);
-					// Remove the processed day from buffer
-					buffer = buffer.replace(match, "");
+				buffer += decoder.decode(value, { stream: true });
+
+				// Try to find complete day objects in the buffer
+				const dayMatches = buffer.match(
+					/\{\s*"day":\s*\d+,\s*"activities":\s*\[[\s\S]*?\]\s*\}/g
+				);
+
+				if (dayMatches) {
+					for (const match of dayMatches) {
+						try {
+							const day = JSON.parse(match);
+							onDayReceived(day);
+							buffer = buffer.replace(match, "");
+						} catch (parseError) {
+							console.error("Error parsing day:", parseError);
+						}
+					}
 				}
 			}
-		} catch {
-			// If JSON parsing fails, continue accumulating data
-			console.log("Waiting for more data...");
+		} finally {
+			reader.releaseLock();
 		}
+	} catch (error) {
+		console.error("Error in fetchItinerary:", error);
+		throw error;
 	}
 };

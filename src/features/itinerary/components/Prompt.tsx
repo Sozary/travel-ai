@@ -8,6 +8,7 @@ import { fetchItinerary } from "../services/itineraryService";
 import { TripTypeSelector } from "./TripTypeSelector";
 import { ItineraryDisplay } from "./ItineraryDisplay";
 import toast from "react-hot-toast";
+import { ItineraryMap } from "../../map/components/ItineraryMap";
 
 const Prompt = () => {
     const [selectedTripKind, setSelectedTripKind] = useState<string | null>(null);
@@ -90,7 +91,14 @@ const Prompt = () => {
             {loading && <p className="mt-4 text-gray-500">Generating itinerary...</p>}
 
             {/* Display itinerary */}
-            <ItineraryDisplay days={days} />
+            {days.length > 0 && (
+                <>
+                    <div className="mt-8">
+                        <ItineraryMap days={days} />
+                    </div>
+                    <ItineraryDisplay days={days} />
+                </>
+            )}
         </div>
     );
 };

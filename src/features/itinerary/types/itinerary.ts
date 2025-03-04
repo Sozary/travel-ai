@@ -1,7 +1,13 @@
+export interface Activity {
+	name: string;
+	location: string;
+	transport_to_next: string;
+}
+
 export interface Day {
 	day: number;
 	city: string;
-	activities: string[];
+	activities: Activity[];
 	transport: string;
 }
 
