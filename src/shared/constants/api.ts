@@ -1,1 +1,1 @@
-export const API_URL = "http://localhost:8000/generate-itinerary/";
+export const API_URL = "http://localhost:8000/generate-itinerary-fake/";

@@ -17,12 +17,14 @@ L.Icon.Default.mergeOptions({
 interface ItineraryMapProps {
     days: DayItinerary[];
     selectedLocation: string | null;
+    setLoadingLocations: (locations: { [key: string]: boolean }) => void;
 }
 const MapController = ({ selectedLocation, activityCoordinates, days }: { selectedLocation: string | null; activityCoordinates: ActivityCoordinates; days: DayItinerary[] }) => {
     const map = useMap();
 
     // Fit map to all locations initially
     useEffect(() => {
+        if (selectedLocation) return
         const allPositions = days
             .flatMap(day => day.activities.map(activity => activityCoordinates[activity.location]))
             .filter(coord => coord !== undefined) as LatLngTuple[];
@@ -31,7 +33,7 @@ const MapController = ({ selectedLocation, activityCoordinates, days }: { select
             const bounds = new LatLngBounds(allPositions);
             map.fitBounds(bounds, { padding: [50, 50] }); // Ensure some padding around
         }
-    }, [activityCoordinates, days, map]);
+    }, [activityCoordinates, days, map, selectedLocation]);
 
     // Zoom to selected location
     useEffect(() => {
@@ -41,11 +43,24 @@ const MapController = ({ selectedLocation, activityCoordinates, days }: { select
         }
     }, [selectedLocation, activityCoordinates, map]);
 
+    useEffect(() => {
+        if (!selectedLocation) {
+            const allPositions = days
+                .flatMap(day => day.activities.map(activity => activityCoordinates[activity.location]))
+                .filter(coord => coord !== undefined) as LatLngTuple[];
+
+            if (allPositions.length > 0) {
+                const bounds = new LatLngBounds(allPositions);
+                map.fitBounds(bounds, { padding: [50, 50] }); // Ensure some padding around
+            }
+        }
+    }, [selectedLocation, activityCoordinates, map, days]);
+
     return null;
 };
 
 
-export const ItineraryMap = ({ days, selectedLocation }: ItineraryMapProps) => {
+export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations }: ItineraryMapProps) => {
     const [activityCoordinates, setActivityCoordinates] = useState<ActivityCoordinates>({});
     const isMountedRef = useRef(true);
 
@@ -62,22 +77,37 @@ export const ItineraryMap = ({ days, selectedLocation }: ItineraryMapProps) => {
         const uniqueLocations = [...new Set(locations)];
         const newCoordinates: ActivityCoordinates = {};
         let hasNewCoordinates = false;
+        const loadingStateUpdate: { [key: string]: boolean } = {};
+        uniqueLocations.forEach((location) => {
+            if (!activityCoordinates[location]) {
+                loadingStateUpdate[location] = true;
+            }
+        });
+        setLoadingLocations((prev) => ({ ...prev, ...loadingStateUpdate }));
+
 
         for (const location of uniqueLocations) {
             if (activityCoordinates[location]) continue;
-
             const coords = await geocodingService.fetchCoordinates(location);
 
             if (coords && isMountedRef.current) {
                 newCoordinates[location] = coords;
                 hasNewCoordinates = true;
+
             }
         }
 
         if (hasNewCoordinates && isMountedRef.current) {
             setActivityCoordinates((prev) => ({ ...prev, ...newCoordinates }));
+            setLoadingLocations((prev) => {
+                const updatedLoadingState = { ...prev };
+                Object.keys(newCoordinates).forEach((location) => {
+                    updatedLoadingState[location] = false;
+                });
+                return updatedLoadingState;
+            });
         }
-    }, [activityCoordinates]);
+    }, [activityCoordinates, setLoadingLocations]);
 
     useEffect(() => {
         const locations = days.flatMap(day => day.activities.map(activity => activity.location));

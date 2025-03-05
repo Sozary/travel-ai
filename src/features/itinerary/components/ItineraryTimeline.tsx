@@ -7,12 +7,12 @@ interface ItineraryTimelineProps {
     days: Day[];
     onActivityChange: (location: string) => void;
     fetchingMoreDays: boolean;
-
+    loadingLocations: { [key: string]: boolean };
 }
 
-export const ItineraryTimeline = ({ days, onActivityChange, fetchingMoreDays }: ItineraryTimelineProps) => {
+export const ItineraryTimeline = ({ days, onActivityChange, fetchingMoreDays, loadingLocations }: ItineraryTimelineProps) => {
     const [selectedDay, setSelectedDay] = useState<number>(1);
-    const [visibleActivity, setVisibleActivity] = useState<string | null>(null);
+    const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
     const activityRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     useEffect(() => {
@@ -23,33 +23,6 @@ export const ItineraryTimeline = ({ days, onActivityChange, fetchingMoreDays }: 
 
     const currentDay = days.find(day => day.day === selectedDay);
 
-    useEffect(() => {
-        if (!currentDay) return;
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                const mostVisible = entries
-                    .filter(entry => entry.isIntersecting)
-                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-                if (mostVisible) {
-                    const index = activityRefs.current.findIndex(ref => ref === mostVisible.target);
-                    if (index !== -1) {
-                        const newVisibleLocation = currentDay.activities[index].location;
-                        setVisibleActivity(newVisibleLocation);
-                        onActivityChange(newVisibleLocation);
-                    }
-                }
-            },
-            { threshold: 0.6 } // At least 60% of the card should be visible to trigger
-        );
-
-        activityRefs.current.forEach(ref => ref && observer.observe(ref));
-
-        return () => {
-            activityRefs.current.forEach(ref => ref && observer.unobserve(ref));
-        };
-    }, [currentDay, onActivityChange]);
 
     return (
         <div className="bg-white rounded-2xl py-[15px]">
@@ -60,21 +33,37 @@ export const ItineraryTimeline = ({ days, onActivityChange, fetchingMoreDays }: 
 
             {/* Activities */}
             <div className="p-4 bg-[#F9FAFB] overflow-x-auto pb-2 flex space-x-4">
-                {currentDay?.activities.map((activity, index) => (
-                    <div
+                {currentDay?.activities.map((activity, index) => {
+                    const isLoading = loadingLocations[activity.location] ?? true;
+
+                    return <div
                         key={index}
-                        className={`flex-none w-[275px] transition-colors duration-300  rounded-xl`}
+                        onClick={() => {
+                            if (!isLoading) {
+                                if (selectedActivity === activity.location) {
+                                    setSelectedActivity(null)
+                                    onActivityChange("");
+                                } else {
+                                    setSelectedActivity(activity.location);
+                                    onActivityChange(activity.location);
+                                }
+                            }
+                        }}
+                        className={`flex-none w-[275px] transition-colors duration-300 cursor-pointer rounded-xl`}
                         ref={(el) => {
                             activityRefs.current[index] = el;
                         }}
                     >
                         <ActivityCard
-                            selected={visibleActivity === activity.location}
+                            loading={loadingLocations[activity.location]}
+                            selected={selectedActivity === activity.location}
                             activity={activity}
                             isLast={index === currentDay.activities.length - 1}
                         />
                     </div>
-                ))}
+                }
+
+                )}
             </div>
         </div>
     );
