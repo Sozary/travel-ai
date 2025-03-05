@@ -68,7 +68,7 @@ export const fetchItinerary = async (
 				const cleanedBuffer = buffer
 					.replace(/```json/g, "")
 					.replace(/^json/, "")
-					.replace(/"days":\s*\[\s*,\s*\]/, '"days": []')
+					.replace(/"days":\s*\[\s*(,\s*)*\]/g, '"days": []')
 					.replace(/```/g, "")
 					.trim();
 				const responseJson = JSON.parse(cleanedBuffer);
