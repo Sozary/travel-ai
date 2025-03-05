@@ -23,7 +23,6 @@ export const ItineraryTimeline = ({ days, onActivityChange, fetchingMoreDays, lo
 
     const currentDay = days.find(day => day.day === selectedDay);
 
-
     return (
         <div className="bg-white rounded-2xl py-[15px]">
             {/* Day Selector with shadow */}
@@ -34,29 +33,32 @@ export const ItineraryTimeline = ({ days, onActivityChange, fetchingMoreDays, lo
             {/* Activities */}
             <div className="p-4 bg-[#F9FAFB] overflow-x-auto pb-2 flex space-x-4">
                 {currentDay?.activities.map((activity, index) => {
-                    const isLoading = loadingLocations[activity.location] ?? true;
+                    const activityKey = `${activity.name} ${activity.location}`;
+                    const isLoading = loadingLocations[activityKey] ?? true;
+
 
                     return <div
                         key={index}
                         onClick={() => {
                             if (!isLoading) {
-                                if (selectedActivity === activity.location) {
-                                    setSelectedActivity(null)
+                                if (selectedActivity === activityKey) {
+                                    setSelectedActivity(null);
                                     onActivityChange("");
                                 } else {
-                                    setSelectedActivity(activity.location);
-                                    onActivityChange(activity.location);
+                                    setSelectedActivity(activityKey);
+                                    onActivityChange(activityKey);
                                 }
                             }
                         }}
-                        className={`flex-none w-[275px] transition-colors duration-300 cursor-pointer rounded-xl`}
+                        className={`flex-none w-[275px] transition-colors duration-300 cursor-pointer rounded-xl 
+                            ${selectedActivity === activityKey ? "bg-blue-100" : "bg-white"}`}
                         ref={(el) => {
                             activityRefs.current[index] = el;
                         }}
                     >
                         <ActivityCard
-                            loading={loadingLocations[activity.location]}
-                            selected={selectedActivity === activity.location}
+                            loading={isLoading}
+                            selected={selectedActivity === activityKey}
                             activity={activity}
                             isLast={index === currentDay.activities.length - 1}
                         />

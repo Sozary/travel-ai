@@ -21,7 +21,7 @@ const tripTypes: TripType[] = [
 
 export const TripTypeSelector = ({ selectedTripKind, onTripTypeSelect }: TripTypeSelectorProps) => {
     return (
-        <div className="flex gap-[10px] px-[10px] mt-[10px] overflow-x-auto">
+        <div className="flex gap-[10px] px-[10px] mt-[10px] overflow-x-auto lg:justify-center">
             {tripTypes.map((item) => (
                 <div
                     key={item.value}

@@ -26,7 +26,7 @@ const MapController = ({ selectedLocation, activityCoordinates, days }: { select
     useEffect(() => {
         if (selectedLocation) return
         const allPositions = days
-            .flatMap(day => day.activities.map(activity => activityCoordinates[activity.location]))
+            .flatMap(day => day.activities.map(activity => activityCoordinates[activity.name + ' ' + activity.location]))
             .filter(coord => coord !== undefined) as LatLngTuple[];
 
         if (allPositions.length > 0) {
@@ -37,8 +37,12 @@ const MapController = ({ selectedLocation, activityCoordinates, days }: { select
 
     // Zoom to selected location
     useEffect(() => {
+        console.log(selectedLocation, activityCoordinates, selectedLocation && activityCoordinates[selectedLocation]);
         if (selectedLocation && activityCoordinates[selectedLocation]) {
+
             const position = activityCoordinates[selectedLocation];
+            console.log(position);
+
             map.flyTo(position, 16, { duration: .5 }); // Smooth zoom effect
         }
     }, [selectedLocation, activityCoordinates, map]);
@@ -46,7 +50,7 @@ const MapController = ({ selectedLocation, activityCoordinates, days }: { select
     useEffect(() => {
         if (!selectedLocation) {
             const allPositions = days
-                .flatMap(day => day.activities.map(activity => activityCoordinates[activity.location]))
+                .flatMap(day => day.activities.map(activity => activityCoordinates[activity.name + ' ' + activity.location]))
                 .filter(coord => coord !== undefined) as LatLngTuple[];
 
             if (allPositions.length > 0) {
@@ -110,7 +114,8 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations }: It
     }, [activityCoordinates, setLoadingLocations]);
 
     useEffect(() => {
-        const locations = days.flatMap(day => day.activities.map(activity => activity.location));
+        const locations = days.flatMap(day => day.activities.map(activity => `${activity.name} ${activity.location}`));
+
         const timeoutId = setTimeout(() => {
             if (isMountedRef.current) {
                 fetchCoordinatesForLocations(locations);
@@ -121,9 +126,10 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations }: It
     }, [days, fetchCoordinatesForLocations]);
 
 
+
     return (
         <div className="w-full h-[400px]">
-            <MapContainer center={[48.8566, 2.3522]} zoom={12} style={{ height: "100%", width: "100%" }}>
+            <MapContainer center={[48.8566, 2.3522]} zoom={2} style={{ height: "100%", width: "100%" }}>
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
                 {/* Handles zooming & fitting to all activities */}
@@ -131,7 +137,7 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations }: It
 
                 {days.map((day) =>
                     day.activities.map((activity, idx) => {
-                        const position = activityCoordinates[activity.location];
+                        const position = activityCoordinates[`${activity.name} ${activity.location}`];
                         if (!position) return null;
 
                         return (
@@ -151,7 +157,7 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations }: It
                 )}
                 {days.map((day) => {
                     const dayRoute: LatLngTuple[] = day.activities
-                        .map((activity) => activityCoordinates[activity.location])
+                        .map((activity) => activityCoordinates[`${activity.name} ${activity.location}`])
                         .filter((coord) => coord !== undefined) as LatLngTuple[];
 
                     return (
