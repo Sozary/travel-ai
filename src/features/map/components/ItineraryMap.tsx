@@ -17,7 +17,7 @@ L.Icon.Default.mergeOptions({
 interface ItineraryMapProps {
     days: DayItinerary[];
     selectedLocation: string | null;
-    setLoadingLocations: (locations: { [key: string]: boolean }) => void;
+    setLoadingLocations: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>;
     selectedDay: number | null;
 }
 const MapController = ({ selectedLocation, activityCoordinates, days, selectedDay }: { selectedLocation: string | null; activityCoordinates: ActivityCoordinates; days: DayItinerary[], selectedDay: number | null }) => {
