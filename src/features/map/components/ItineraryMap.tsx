@@ -71,7 +71,7 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations }: It
         };
     }, []);
 
-    const fetchCoordinatesForLocations = useCallback(async (locations: string[]) => {
+    const fetchCoordinatesForLocations = useCallback(async (locations: string[], rawLocations: { [key: string]: string }) => {
         if (!isMountedRef.current) return;
 
         const uniqueLocations = [...new Set(locations)];
@@ -88,7 +88,7 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations }: It
 
         for (const location of uniqueLocations) {
             if (activityCoordinates[location]) continue;
-            const coords = await geocodingService.fetchCoordinates(location);
+            const coords = await geocodingService.fetchCoordinates(rawLocations[location]);
 
             if (coords && isMountedRef.current) {
                 newCoordinates[location] = coords;
@@ -111,10 +111,15 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations }: It
 
     useEffect(() => {
         const locations = days.flatMap(day => day.activities.map(activity => `${activity.name} ${activity.location}`));
-
+        const rawLocations: { [key: string]: string } = {};
+        days.forEach(day => {
+            day.activities.forEach(activity => {
+                rawLocations[`${activity.name} ${activity.location}`] = activity.location;
+            })
+        })
         const timeoutId = setTimeout(() => {
             if (isMountedRef.current) {
-                fetchCoordinatesForLocations(locations);
+                fetchCoordinatesForLocations(locations, rawLocations);
             }
         }, 500);
 

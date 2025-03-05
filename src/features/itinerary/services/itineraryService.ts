@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { API_URL } from "../../../shared/constants/api";
 import { Day } from "../types/itinerary";
 
@@ -26,6 +27,7 @@ export const fetchItinerary = async (
 		const reader = response.body.getReader();
 		const decoder = new TextDecoder();
 		let buffer = "";
+		let receivedData = false; // Track if we receive any valid data
 
 		try {
 			while (true) {
@@ -45,6 +47,7 @@ export const fetchItinerary = async (
 							const day = JSON.parse(match);
 							onDayReceived(day);
 							buffer = buffer.replace(match, "");
+							receivedData = true;
 						} catch (parseError) {
 							console.error("Error parsing day:", parseError);
 						}
@@ -53,6 +56,12 @@ export const fetchItinerary = async (
 			}
 		} finally {
 			reader.releaseLock();
+		}
+		if (!receivedData) {
+			toast.error(
+				"An error occurred while generating the itinerary.\nMost likely the API key is invalid.\nWe cleared the one you had inputted. Please reload the page and try again."
+			);
+			localStorage.removeItem("openai_api_key");
 		}
 	} catch (error) {
 		console.error("Error in fetchItinerary:", error);
