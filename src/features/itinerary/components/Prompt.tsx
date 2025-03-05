@@ -18,6 +18,7 @@ const Prompt = () => {
     const [days, setDays] = useState<Day[]>([]);
     const isMounted = useRef(true);
     const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+    const [selectedDay, setSelectedDay] = useState<number | null>(null);
     const [loadingLocations, setLoadingLocations] = useState<{ [key: string]: boolean }>({});
 
 
@@ -112,12 +113,12 @@ const Prompt = () => {
             {/* Map takes full width */}
             {days.length > 0 && (
                 <div className="w-full">
-                    <ItineraryMap days={days} selectedLocation={selectedLocation} setLoadingLocations={setLoadingLocations} />
+                    <ItineraryMap selectedDay={selectedDay} days={days} selectedLocation={selectedLocation} setLoadingLocations={setLoadingLocations} />
                 </div>
             )}
             {/* Content with padding */}
             {/* Always show the timeline */}
-            <ItineraryTimeline days={days} onActivityChange={setSelectedLocation} fetchingMoreDays={fetchingMoreDays} loadingLocations={loadingLocations} />
+            <ItineraryTimeline days={days} onActivityChange={setSelectedLocation} fetchingMoreDays={fetchingMoreDays} loadingLocations={loadingLocations} setSelectedMapDay={setSelectedDay} />
         </div>
     );
 };

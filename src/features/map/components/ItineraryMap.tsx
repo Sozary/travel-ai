@@ -18,49 +18,70 @@ interface ItineraryMapProps {
     days: DayItinerary[];
     selectedLocation: string | null;
     setLoadingLocations: (locations: { [key: string]: boolean }) => void;
+    selectedDay: number | null;
 }
-const MapController = ({ selectedLocation, activityCoordinates, days }: { selectedLocation: string | null; activityCoordinates: ActivityCoordinates; days: DayItinerary[] }) => {
+const MapController = ({ selectedLocation, activityCoordinates, days, selectedDay }: { selectedLocation: string | null; activityCoordinates: ActivityCoordinates; days: DayItinerary[], selectedDay: number | null }) => {
     const map = useMap();
 
-    // Fit map to all locations initially
     useEffect(() => {
-        if (selectedLocation) return
+        if (selectedLocation) return;
+
         const allPositions = days
-            .flatMap(day => day.activities.map(activity => activityCoordinates[activity.name + ' ' + activity.location]))
-            .filter(coord => coord !== undefined) as LatLngTuple[];
+            .flatMap(day =>
+                day.activities.map(activity => activityCoordinates[`${activity.name} ${activity.location}`])
+            )
+            .filter((coord): coord is LatLngTuple => coord !== undefined);
 
         if (allPositions.length > 0) {
             const bounds = new LatLngBounds(allPositions);
-            map.fitBounds(bounds, { padding: [50, 50] }); // Ensure some padding around
+            map.fitBounds(bounds, { padding: [50, 50] });
         }
     }, [activityCoordinates, days, map, selectedLocation]);
 
-    // Zoom to selected location
     useEffect(() => {
-        if (selectedLocation && activityCoordinates[selectedLocation]) {
+        if (selectedLocation) {
             const position = activityCoordinates[selectedLocation];
-            map.flyTo(position, 16, { duration: .5 }); // Smooth zoom effect
+            if (position) {
+                map.flyTo(position, 16, { duration: 0.5 });
+            }
         }
     }, [selectedLocation, activityCoordinates, map]);
 
     useEffect(() => {
-        if (!selectedLocation) {
+        if (selectedLocation) return;
+
+        if (!selectedDay) {
             const allPositions = days
-                .flatMap(day => day.activities.map(activity => activityCoordinates[activity.name + ' ' + activity.location]))
-                .filter(coord => coord !== undefined) as LatLngTuple[];
+                .flatMap(day =>
+                    day.activities.map(activity => activityCoordinates[`${activity.name} ${activity.location}`])
+                )
+                .filter((coord): coord is LatLngTuple => coord !== undefined);
 
             if (allPositions.length > 0) {
                 const bounds = new LatLngBounds(allPositions);
-                map.fitBounds(bounds, { padding: [50, 50] }); // Ensure some padding around
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+            return;
+        }
+
+        const day = days.find(day => day.day === selectedDay);
+        if (day) {
+            const allPositions = day.activities
+                .map(activity => activityCoordinates[`${activity.name} ${activity.location}`])
+                .filter((coord): coord is LatLngTuple => coord !== undefined);
+
+            if (allPositions.length > 0) {
+                const bounds = new LatLngBounds(allPositions);
+                map.fitBounds(bounds, { padding: [50, 50] });
             }
         }
-    }, [selectedLocation, activityCoordinates, map, days]);
+    }, [selectedLocation, activityCoordinates, map, days, selectedDay]);
 
     return null;
 };
 
 
-export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations }: ItineraryMapProps) => {
+export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations, selectedDay }: ItineraryMapProps) => {
     const [activityCoordinates, setActivityCoordinates] = useState<ActivityCoordinates>({});
     const isMountedRef = useRef(true);
 
@@ -134,7 +155,7 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations }: It
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
                 {/* Handles zooming & fitting to all activities */}
-                <MapController selectedLocation={selectedLocation} activityCoordinates={activityCoordinates} days={days} />
+                <MapController selectedLocation={selectedLocation} activityCoordinates={activityCoordinates} selectedDay={selectedDay} days={days} />
 
                 {days.map((day) =>
                     day.activities.map((activity, idx) => {

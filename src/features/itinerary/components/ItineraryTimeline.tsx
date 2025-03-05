@@ -8,12 +8,17 @@ interface ItineraryTimelineProps {
     onActivityChange: (location: string) => void;
     fetchingMoreDays: boolean;
     loadingLocations: { [key: string]: boolean };
+    setSelectedMapDay: (day: number) => void;
 }
 
-export const ItineraryTimeline = ({ days, onActivityChange, fetchingMoreDays, loadingLocations }: ItineraryTimelineProps) => {
+export const ItineraryTimeline = ({ days, onActivityChange, fetchingMoreDays, loadingLocations, setSelectedMapDay }: ItineraryTimelineProps) => {
     const [selectedDay, setSelectedDay] = useState<number>(1);
     const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
     const activityRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+    useEffect(() => {
+        setSelectedMapDay(selectedDay);
+    }, [selectedDay, setSelectedMapDay]);
 
     useEffect(() => {
         if (days.length > 0) {
