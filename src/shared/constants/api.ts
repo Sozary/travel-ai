@@ -1,1 +1,3 @@
-export const API_URL = "http://localhost:8000/generate-itinerary/";
+const API = import.meta.env.VITE_API;
+
+export const API_URL = API + "/generate-itinerary/";
