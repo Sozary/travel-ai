@@ -2,9 +2,13 @@ import { useState, useEffect } from "react";
 import { MainLayout } from "./layouts/MainLayout";
 import { HomePage } from "./pages/HomePage";
 import { Toaster } from 'react-hot-toast';
+import { keepAlive } from "./keepalive";
 
 function App() {
   const [apiKey, setApiKey] = useState<string | null>(null);
+  useEffect(() => {
+    keepAlive(); // Start pinging backend to keep it awake
+  }, []);
 
   useEffect(() => {
     const storedKey = localStorage.getItem("openai_api_key");
