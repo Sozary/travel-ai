@@ -4,13 +4,14 @@ import { Day } from "../types/itinerary";
 export const fetchItinerary = async (
 	prompt: string,
 	tripType: string,
+	apiKey: string,
 	onDayReceived: (day: Day) => void
 ): Promise<void> => {
 	try {
 		const response = await fetch(
 			`${API_URL}?destination=${encodeURIComponent(
 				prompt
-			)}&trip_type=${tripType}`,
+			)}&trip_type=${tripType}&api_key=${apiKey}`,
 			{ method: "GET", headers: { Accept: "text/event-stream" } }
 		);
 

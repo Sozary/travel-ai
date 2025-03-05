@@ -36,7 +36,16 @@ const Prompt = () => {
             return prev;
         });
     };
+    const [apiKey, setApiKey] = useState<string>('');
 
+    useEffect(() => {
+        const storedKey = localStorage.getItem("openai_api_key");
+        if (storedKey) {
+            setApiKey(storedKey);
+        } else {
+            alert("OpenAI API Key is required to generate itinerary, please reload");
+        }
+    }, []);
     const handleFetchItinerary = async () => {
         if (!prompt) {
             toast.error("Please write about your trip first");
@@ -52,7 +61,7 @@ const Prompt = () => {
         setDays([]);
 
         try {
-            await fetchItinerary(prompt, selectedTripKind, handleDayReceived);
+            await fetchItinerary(prompt, selectedTripKind, apiKey, handleDayReceived);
         } catch (error) {
             console.error("Error fetching itinerary:", error);
             toast.error("Failed to generate itinerary");

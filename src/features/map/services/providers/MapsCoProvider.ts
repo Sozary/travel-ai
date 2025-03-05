@@ -89,6 +89,11 @@ export class MapsCoProvider implements GeocodingProvider {
 				return null;
 			}
 		} catch {
+			const osmCoords = await this.osmProvider.fetchCoordinates(location);
+			if (osmCoords) {
+				this.coordinatesCache.set(location, osmCoords);
+				return osmCoords;
+			}
 			this.failedLocations.add(location);
 			return null;
 		}
