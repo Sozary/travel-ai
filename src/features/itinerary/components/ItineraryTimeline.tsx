@@ -21,10 +21,11 @@ export const ItineraryTimeline = ({ days, onActivityChange, fetchingMoreDays, lo
     }, [selectedDay, setSelectedMapDay]);
 
     useEffect(() => {
-        if (days.length > 0) {
-            setSelectedDay(days[0].day);
+        if (days.length > 0 && !days.some(d => d.day === selectedDay)) {
+            setSelectedDay(days[0].day); // Only set if the selected day no longer exists
         }
-    }, [days]);
+    }, [days, selectedDay]);
+
 
     const currentDay = days.find(day => day.day === selectedDay);
 

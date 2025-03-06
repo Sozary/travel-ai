@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import clsx from "clsx";
 import Search from "../../../shared/assets/icons/Search";
-import { Day } from "../types/itinerary";
+import { Activity, Day } from "../types/itinerary";
 import { fetchItinerary } from "../services/itineraryService";
 import { TripTypeSelector } from "./TripTypeSelector";
 import { ItineraryTimeline } from "./ItineraryTimeline";
@@ -27,16 +27,39 @@ const Prompt = () => {
         return () => { isMounted.current = false; };
     }, []);
 
-    const handleDayReceived = (day: Day) => {
+    const handleActivityReceived = (activity: Activity, dayNumber: number) => {
         if (!isMounted.current) return;
 
-        setDays(prev => {
-            if (!prev.find(d => d.day === day.day)) {
-                return [...prev, day].sort((a, b) => a.day - b.day);
+        setDays(prevDays => {
+            const updatedDays = [...prevDays];
+            const existingDayIndex = updatedDays.findIndex(d => d.day === dayNumber);
+
+            if (existingDayIndex !== -1) {
+                updatedDays[existingDayIndex].activities.push(activity);
             }
-            return prev;
+
+            return updatedDays.sort((a, b) => a.day - b.day);
         });
     };
+
+    const handleDayReceived = (dayNumber: number) => {
+        setDays(prevDays => {
+            const dayExists = prevDays.find(d => d.day === dayNumber);
+
+            if (!dayExists) {
+                return [...prevDays, { day: dayNumber, activities: [], city: "", transport: "" }];
+            }
+
+            return prevDays;
+        });
+
+
+    };
+
+    useEffect(() => {
+        console.log(days);
+    }, [days]);
+
     const [apiKey, setApiKey] = useState<string>('');
 
     useEffect(() => {
@@ -62,7 +85,7 @@ const Prompt = () => {
         setDays([]);
 
         try {
-            await fetchItinerary(prompt, selectedTripKind, apiKey, handleDayReceived);
+            await fetchItinerary(prompt, selectedTripKind, apiKey, handleActivityReceived, handleDayReceived);
         } catch (error) {
             console.error("Error fetching itinerary:", error);
             toast.error("Failed to generate itinerary");

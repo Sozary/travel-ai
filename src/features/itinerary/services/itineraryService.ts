@@ -1,12 +1,13 @@
 import toast from "react-hot-toast";
 import { API_URL } from "../../../shared/constants/api";
-import { Day } from "../types/itinerary";
+import { Activity } from "../types/itinerary";
 
 export const fetchItinerary = async (
 	prompt: string,
 	tripType: string,
 	apiKey: string,
-	onDayReceived: (day: Day) => void
+	onActivityReceived: (activity: Activity, dayNumber: number) => void,
+	onDayReceived: (dayNumber: number) => void
 ): Promise<void> => {
 	let startDay = 1;
 	let continueFetching = true;
@@ -31,6 +32,7 @@ export const fetchItinerary = async (
 			const decoder = new TextDecoder();
 			let buffer = "";
 			let receivedData = false; // Track if we receive any valid data
+			let currentDay: number | null = null;
 
 			try {
 				while (true) {
@@ -41,22 +43,31 @@ export const fetchItinerary = async (
 					buffer = buffer
 						.replace(/```json/g, "")
 						.replace(/```/g, "")
+						.replace(/\[\s*,+\s*\]/g, "[]") // Fix empty arrays like [, , ]
+						.replace(/,\s*([\]}])/g, "$1") // Remove trailing commas before ] or }
 						.trim();
 
-					// Try to find complete day objects in the buffer
-					const dayMatches = buffer.match(
-						/\{\s*"day":\s*\d+,\s*"activities":\s*\[[\s\S]*?\]\s*\}/g
+					const dayMatch = buffer.match(/"day":\s*(\d+),/);
+
+					if (dayMatch) {
+						currentDay = parseInt(dayMatch[1], 10);
+						onDayReceived(currentDay);
+						buffer = buffer.replace(dayMatch[0], "");
+					}
+
+					const activityMatches = buffer.match(
+						/\{\s*"name":\s*".+?",\s*"location":\s*".+?",\s*"duration":\s*".+?",\s*"transport_to_next":\s*".+?"(?:,\s*"type":\s*".+?")?\s*\}/g
 					);
 
-					if (dayMatches) {
-						for (const match of dayMatches) {
+					if (activityMatches && currentDay !== null) {
+						for (const match of activityMatches) {
 							try {
-								const day = JSON.parse(match);
-								onDayReceived(day);
-								buffer = buffer.replace(match, "");
+								const activity = JSON.parse(match);
+								onActivityReceived(activity, currentDay);
 								receivedData = true;
+								buffer = buffer.replace(match, "");
 							} catch (parseError) {
-								console.error("Error parsing day:", parseError);
+								console.error("Error parsing activity:", parseError);
 							}
 						}
 					}
@@ -64,12 +75,17 @@ export const fetchItinerary = async (
 			} finally {
 				reader.releaseLock();
 			}
+
+			if (currentDay !== null) {
+				onDayReceived(currentDay); // Remove day if no activities
+			}
+
 			try {
 				const cleanedBuffer = buffer
 					.replace(/```json/g, "")
 					.replace(/^json/, "")
-					.replace(/"days":\s*\[\s*(,\s*)*\]/g, '"days": []')
-					.replace(/```/g, "")
+					.replace(/"days":\s*\[\s*(,\s*)*\]/g, '"days": []') // Fix empty day arrays
+					.replace(/,\s*([\]}])/g, "$1") // Remove trailing commas before ] or }
 					.trim();
 				const responseJson = JSON.parse(cleanedBuffer);
 
