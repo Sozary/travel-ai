@@ -5,7 +5,7 @@ import { GoogleMapProvider } from "./providers/GoogleMapProvider";
 
 const MAPS_CO_API_KEY = import.meta.env.VITE_MAPS_CO_API_KEY;
 const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
-const PROVIDER = import.meta.env.VITE_GEOCODING_PROVIDER;
+const PROVIDER = import.meta.env.VITE_GEOCODING_PROVIDER || "google";
 
 let geocodingService: GeocodingProvider;
 

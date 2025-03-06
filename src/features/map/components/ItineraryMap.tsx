@@ -2,9 +2,10 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import { LatLngTuple, Icon, LatLngBounds } from "leaflet";
 import { DayItinerary, ActivityCoordinates } from "../types";
-import { geocodingService } from "../services";
+import { geocodingService } from "../services/geocoding";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { fetchRoute } from "../services/direction/routingService";
 
 // Fix for default marker icons in react-leaflet
 delete (Icon.Default.prototype as { _getIconUrl?: string })._getIconUrl;
@@ -83,9 +84,7 @@ const MapController = ({ selectedLocation, activityCoordinates, days, selectedDa
 
 export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations, selectedDay }: ItineraryMapProps) => {
     const [activityCoordinates, setActivityCoordinates] = useState<ActivityCoordinates>({});
-    // const activityCoordinatesRef = useRef<ActivityCoordinates>({});
-
-    const [, forceUpdate] = useState({}); // 🔄 Force re-render only markers, not entire map
+    const [routes, setRoutes] = useState<{ [key: string]: LatLngTuple[] }>({});
     const isMountedRef = useRef(true);
 
     useEffect(() => {
@@ -94,35 +93,66 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations, sele
             isMountedRef.current = false;
         };
     }, []);
+    /** Fetch routes only between consecutive activities that have both locations */
+    const fetchRoutesForDays = useCallback(async (days: DayItinerary[], activityCoordinates: ActivityCoordinates) => {
+        const newRoutes: { [key: string]: LatLngTuple[] } = { ...routes };
+
+        for (const day of days) {
+            const orderedActivities = day.activities
+                .map(activity => ({
+                    key: `${activity.name} ${activity.location}`,
+                    coord: activityCoordinates[`${activity.name} ${activity.location}`]
+                }))
+                .filter(({ coord }) => coord !== undefined);
+
+            for (let i = 0; i < orderedActivities.length - 1; i++) {
+                const start = orderedActivities[i].coord;
+                const end = orderedActivities[i + 1].coord;
+                const routeKey = `${orderedActivities[i].key} -> ${orderedActivities[i + 1].key}`;
+
+                if (!newRoutes[routeKey]) {
+                    console.log('Fetching', orderedActivities[i].key, '=>', orderedActivities[i + 1].key);
+
+                    const route = await fetchRoute([start, end]);
+                    console.log('Got route', route);
+
+                    if (route) {
+                        newRoutes[routeKey] = route;
+                    }
+                }
+            }
+        }
+
+        if (Object.keys(newRoutes).length > Object.keys(routes).length && isMountedRef.current) {
+            setRoutes(newRoutes);
+        }
+    }, [routes]);
 
     const fetchCoordinatesForLocations = useCallback(async (locations: string[]) => {
         if (!isMountedRef.current) return;
 
         const uniqueLocations = [...new Set(locations)];
         const newCoordinates: ActivityCoordinates = {};
-        let hasNewCoordinates = false;
         const loadingStateUpdate: { [key: string]: boolean } = {};
+
         uniqueLocations.forEach((location) => {
             if (!activityCoordinates[location]) {
                 loadingStateUpdate[location] = true;
             }
         });
-        setLoadingLocations((prev) => ({ ...prev, ...loadingStateUpdate }));
 
+        setLoadingLocations((prev) => ({ ...prev, ...loadingStateUpdate }));
 
         for (const location of uniqueLocations) {
             if (activityCoordinates[location]) continue;
 
             const coords = await geocodingService.fetchCoordinates(location);
-
             if (coords && isMountedRef.current) {
                 newCoordinates[location] = coords;
-                hasNewCoordinates = true;
-
             }
         }
 
-        if (hasNewCoordinates && isMountedRef.current) {
+        if (Object.keys(newCoordinates).length > 0 && isMountedRef.current) {
             setActivityCoordinates((prev) => ({ ...prev, ...newCoordinates }));
             setLoadingLocations((prev) => {
                 const updatedLoadingState = { ...prev };
@@ -131,9 +161,13 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations, sele
                 });
                 return updatedLoadingState;
             });
-            forceUpdate({});
+
+            fetchRoutesForDays(days, { ...activityCoordinates, ...newCoordinates });
         }
-    }, [activityCoordinates, setLoadingLocations]);
+    }, [setLoadingLocations, activityCoordinates, fetchRoutesForDays, days]);
+
+
+
 
     useEffect(() => {
         const locations = days.flatMap(day => day.activities.map(activity => `${activity.name} ${activity.location}`));
@@ -177,25 +211,19 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations, sele
                         );
                     })
                 )}
-                {days.map((day) => {
-                    const dayRoute: LatLngTuple[] = day.activities
-                        .map((activity) => activityCoordinates[`${activity.name} ${activity.location}`])
-                        .filter((coord) => coord !== undefined) as LatLngTuple[];
+                {Object.entries(routes).map(([day, route]) => (
+                    <Polyline
+                        key={`route-${day}`}
+                        positions={route}
+                        color="blue"
+                        weight={4}
+                        opacity={0.7}
+                    />
+                ))}
 
-                    return (
-                        dayRoute.length > 1 && (
-                            <Polyline
-                                key={`route-${day.day}`}
-                                positions={dayRoute}
-                                color="blue"
-                                weight={4}
-                                opacity={0.7}
-                            />
-                        )
-                    );
-                })}
 
             </MapContainer>
         </div>
     );
 };
+
