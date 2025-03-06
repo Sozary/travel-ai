@@ -83,6 +83,9 @@ const MapController = ({ selectedLocation, activityCoordinates, days, selectedDa
 
 export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations, selectedDay }: ItineraryMapProps) => {
     const [activityCoordinates, setActivityCoordinates] = useState<ActivityCoordinates>({});
+    // const activityCoordinatesRef = useRef<ActivityCoordinates>({});
+
+    const [, forceUpdate] = useState({}); // 🔄 Force re-render only markers, not entire map
     const isMountedRef = useRef(true);
 
     useEffect(() => {
@@ -128,6 +131,7 @@ export const ItineraryMap = ({ days, selectedLocation, setLoadingLocations, sele
                 });
                 return updatedLoadingState;
             });
+            forceUpdate({});
         }
     }, [activityCoordinates, setLoadingLocations]);
 

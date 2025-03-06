@@ -31,11 +31,19 @@ const Prompt = () => {
         if (!isMounted.current) return;
 
         setDays(prevDays => {
-            const updatedDays = [...prevDays];
-            const existingDayIndex = updatedDays.findIndex(d => d.day === dayNumber);
+            const updatedDays = prevDays.map(day => {
+                if (day.day === dayNumber) {
+                    return {
+                        ...day,
+                        activities: [...day.activities, activity] // Append activity immediately
+                    };
+                }
+                return day;
+            });
 
-            if (existingDayIndex !== -1) {
-                updatedDays[existingDayIndex].activities.push(activity);
+            // If the day doesn't exist yet, add it
+            if (!updatedDays.find(d => d.day === dayNumber)) {
+                updatedDays.push({ day: dayNumber, activities: [activity], city: "", transport: "" });
             }
 
             return updatedDays.sort((a, b) => a.day - b.day);
@@ -44,17 +52,13 @@ const Prompt = () => {
 
     const handleDayReceived = (dayNumber: number) => {
         setDays(prevDays => {
-            const dayExists = prevDays.find(d => d.day === dayNumber);
-
-            if (!dayExists) {
+            if (!prevDays.some(d => d.day === dayNumber)) {
                 return [...prevDays, { day: dayNumber, activities: [], city: "", transport: "" }];
             }
-
             return prevDays;
         });
-
-
     };
+
 
     useEffect(() => {
         console.log(days);
