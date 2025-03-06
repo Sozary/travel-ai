@@ -59,11 +59,6 @@ const Prompt = () => {
         });
     };
 
-
-    useEffect(() => {
-        console.log(days);
-    }, [days]);
-
     const [apiKey, setApiKey] = useState<string>('');
 
     useEffect(() => {
